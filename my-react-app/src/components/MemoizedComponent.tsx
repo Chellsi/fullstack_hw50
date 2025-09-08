@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { expensiveCalculation } from '../utils/calculations';
+import { expensiveCalculation, getCalculationCount } from '../utils/calculations';
 
 interface Props {
   value: number;
