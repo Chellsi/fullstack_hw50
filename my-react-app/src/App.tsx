@@ -1,199 +1,113 @@
-// src/App.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 
-// Компоненти
-import ExpensiveComponent from './components/ExpensiveCalculation/ExpensiveComponent';
-import MemoizedExpensive from './components/ExpensiveCalculation/MemoizedExpensive';
-import ChildComponent from './components/CallbackDemo/ChildComponent';
-import MemoizedChild from './components/CallbackDemo/MemoizedChild';
-import ItemsList from './components/ListDemo/ItemsList';
-import DemoControls from './components/Controls/DemoControls';
-import Section from './components/Layout/Section';
+// Імпорт компонентів
+import RegularComponent from './components/RegularComponent';
+import MemoizedComponent from './components/MemoizedComponent';
+import ChildButton from './components/ChildButton';
+import MemoizedChild from './components/MemoizedChild';
+import ListItem from './components/ListItem';
 
-// Типи
-import type { DemoItem } from './types/demo.types';
-
-// Хуки
-import { useExpensiveCalculation } from './hooks/useExpensiveCalculation';
-
-/**
- * Головний компонент додатку з демонстрацією мемоізації
- */
 const App: React.FC = () => {
-  // Стан додатку
-  const [count, setCount] = useState<number>(0);
-  const [calculationValue, setCalculationValue] = useState<number>(1);
-  const [items, setItems] = useState<DemoItem[]>([
-    { id: 1, name: 'Елемент 1', value: 10 },
-    { id: 2, name: 'Елемент 2', value: 20 },
-    { id: 3, name: 'Елемент 3', value: 30 },
+  const [count, setCount] = useState(0);
+  const [calculationValue, setCalculationValue] = useState(1);
+  const [items, setItems] = useState([
+    { id: 1, name: 'Елемент 1' },
+    { id: 2, name: 'Елемент 2' },
+    { id: 3, name: 'Елемент 3' }
   ]);
-  const [newItemName, setNewItemName] = useState<string>('');
 
-  // Демонстрація кастомного хуку з мемоізацією
-  const customHookResult = useExpensiveCalculation(calculationValue);
-
-  // Функція без useCallback - створюється нова на кожному рендері
-  const handleButtonClickWithoutCallback = () => {
-    console.log('Натиснута кнопка без useCallback');
+  // Функція БЕЗ useCallback
+  const handleClickRegular = () => {
+    console.log('Клік без useCallback');
   };
 
-  // Функція з useCallback - мемоізується
-  const handleButtonClickWithCallback = useCallback(() => {
-    console.log('Натиснута кнопка з useCallback');
+  // Функція З useCallback
+  const handleClickMemoized = useCallback(() => {
+    console.log('Клік з useCallback');
   }, []);
 
-  // useCallback для функції видалення елементів списку
+  // useCallback для видалення з списку
   const handleDeleteItem = useCallback((id: number) => {
     setItems(prev => prev.filter(item => item.id !== id));
   }, []);
 
-  // Функція додавання нового елементу
-  const handleAddItem = useCallback(() => {
-    if (newItemName.trim()) {
-      const newItem: DemoItem = {
-        id: Date.now(),
-        name: newItemName,
-        value: Math.floor(Math.random() * 100)
-      };
-      setItems(prev => [...prev, newItem]);
-      setNewItemName('');
-    }
-  }, [newItemName]);
+  // useMemo для фільтрованого списку
+  const processedItems = useMemo(() => {
+    console.log('🔄 Перерахунок списку');
+    return items.map(item => ({
+      ...item,
+      processed: true
+    }));
+  }, [items]);
 
-  // Обробники подій для контролерів
-  const handleCountChange = useCallback(() => {
-    setCount(c => c + 1);
-  }, []);
-
-  const handleCalculationValueChange = useCallback(() => {
-    setCalculationValue(v => v + 1);
-  }, []);
-
-  const handleNewItemNameChange = useCallback((name: string) => {
-    setNewItemName(name);
-  }, []);
+  const addItem = () => {
+    const newItem = { id: Date.now(), name: `Новий елемент ${items.length + 1}` };
+    setItems(prev => [...prev, newItem]);
+  };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white min-h-screen">
-      {/* Заголовок */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Демонстрація мемоізації в React
-        </h1>
-        <div className="p-4 bg-blue-50 rounded-lg">
-          <p className="text-blue-800 mb-2">
-            <strong>Інструкції:</strong> Відкрийте консоль розробника (F12), щоб побачити логи перерендерів та обчислень.
-          </p>
-          <p className="text-blue-700 text-sm">
-            Результат кастомного хуку: <span className="font-mono">{customHookResult}</span>
-          </p>
-        </div>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">Демонстрація мемоізації React</h1>
+      
+      <div className="mb-6 p-4 bg-yellow-100 rounded">
+        <p className="text-sm">Відкрийте консоль (F12) щоб бачити логи перерендерів</p>
       </div>
 
       {/* Контролери */}
-      <DemoControls
-        count={count}
-        calculationValue={calculationValue}
-        newItemName={newItemName}
-        onCountChange={handleCountChange}
-        onCalculationValueChange={handleCalculationValueChange}
-        onNewItemNameChange={handleNewItemNameChange}
-        onAddItem={handleAddItem}
-      />
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <button 
+          onClick={() => setCount(c => c + 1)}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Лічильник: {count}
+        </button>
+        <button 
+          onClick={() => setCalculationValue(v => v + 1)}
+          className="px-4 py-2 bg-purple-500 text-white rounded"
+        >
+          Значення: {calculationValue}
+        </button>
+        <button 
+          onClick={addItem}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Додати елемент
+        </button>
+      </div>
 
       {/* Демонстрація useMemo */}
-      <Section
-        title="1. Демонстрація useMemo"
-        description="Змініть лічильник - компонент з useMemo не перераховуватиме складне обчислення."
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ExpensiveComponent 
-            value={calculationValue} 
-            onButtonClick={handleButtonClickWithoutCallback}
-          />
-          <MemoizedExpensive 
-            value={calculationValue} 
-            onButtonClick={handleButtonClickWithCallback}
-          />
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">1. useMemo</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <RegularComponent value={calculationValue} />
+          <MemoizedComponent value={calculationValue} />
         </div>
-      </Section>
+      </div>
 
       {/* Демонстрація useCallback + React.memo */}
-      <Section
-        title="2. Демонстрація useCallback + React.memo"
-        description="Змініть лічильник - мемоізований дочірній компонент не перерендериться."
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Без мемоізації</h3>
-            <ChildComponent 
-              onClick={handleButtonClickWithoutCallback}
-              title="Дочірній компонент без memo"
-            />
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">2. useCallback + React.memo</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-4 border rounded">
+            <ChildButton onClick={handleClickRegular} />
           </div>
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">З мемоізацією</h3>
-            <MemoizedChild 
-              onClick={handleButtonClickWithCallback}
-              title="Дочірній компонент з memo"
-            />
+          <div className="p-4 border rounded">
+            <MemoizedChild onClick={handleClickMemoized} />
           </div>
         </div>
-      </Section>
+      </div>
 
-      {/* Демонстрація мемоізованого списку */}
-      <Section
-        title="3. Мемоізований список"
-        description="Список перераховується тільки при зміні елементів, не при зміні лічильника."
-      >
-        <ItemsList 
-          items={items}
-          onDeleteItem={handleDeleteItem}
-        />
-      </Section>
-
-      {/* Пояснення */}
-      <div className="p-6 bg-blue-50 rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Пояснення технік мемоізації:</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div className="p-4 bg-white rounded border-l-4 border-blue-500">
-            <h3 className="font-semibold text-blue-800 mb-2">useMemo</h3>
-            <p className="text-gray-700">
-              Мемоізує результат складних обчислень. Перераховує тільки при зміні залежностей.
-            </p>
-            <code className="text-xs bg-gray-100 p-1 rounded mt-2 block">
-              useMemo(() => calculation(), [deps])
-            </code>
-          </div>
-          <div className="p-4 bg-white rounded border-l-4 border-green-500">
-            <h3 className="font-semibold text-green-800 mb-2">useCallback</h3>
-            <p className="text-gray-700">
-              Мемоізує функції. Повертає ту саму функцію, якщо залежності не змінилися.
-            </p>
-            <code className="text-xs bg-gray-100 p-1 rounded mt-2 block">
-              useCallback(() => handler(), [deps])
-            </code>
-          </div>
-          <div className="p-4 bg-white rounded border-l-4 border-purple-500">
-            <h3 className="font-semibold text-purple-800 mb-2">React.memo</h3>
-            <p className="text-gray-700">
-              Мемоізує компонент. Перерендерює тільки при зміні пропсів.
-            </p>
-            <code className="text-xs bg-gray-100 p-1 rounded mt-2 block">
-              memo(Component)
-            </code>
-          </div>
-        </div>
-        
-        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
-          <h3 className="font-semibold text-yellow-800 mb-2">💡 Поради з оптимізації:</h3>
-          <ul className="text-sm text-yellow-700 space-y-1">
-            <li>• Використовуйте мемоізацію тільки для дорогих операцій</li>
-            <li>• React.memo краще використовувати для компонентів з частими ререндерами</li>
-            <li>• useCallback корисний при передачі функцій до мемоізованих компонентів</li>
-            <li>• Кастомні хуки можуть інкапсулювати логіку мемоізації</li>
-          </ul>
+      {/* Демонстрація списку */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">3. Мемоізований список</h2>
+        <div className="border rounded p-4">
+          {processedItems.map(item => (
+            <ListItem 
+              key={item.id}
+              item={item}
+              onDelete={handleDeleteItem}
+            />
+          ))}
         </div>
       </div>
     </div>

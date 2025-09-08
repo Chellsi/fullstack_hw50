@@ -26,27 +26,15 @@ npm run build
 
 ```
 src/
-├── App.tsx                    # Головний компонент
-├── components/                # React компоненти
-│   ├── ExpensiveCalculation/  # Демо useMemo
-│   │   ├── ExpensiveComponent.tsx
-│   │   └── MemoizedExpensive.tsx
-│   ├── CallbackDemo/         # Демо useCallback + memo
-│   │   ├── ChildComponent.tsx
-│   │   └── MemoizedChild.tsx
-│   ├── ListDemo/             # Демо списків
-│   │   ├── ListItem.tsx
-│   │   └── ItemsList.tsx
-│   ├── Controls/             # UI контролери
-│   │   └── DemoControls.tsx
-│   └── Layout/               # Макет
-│       └── Section.tsx
-├── hooks/                    # Кастомні хуки
-│   └── useExpensiveCalculation.ts
-├── utils/                    # Допоміжні функції
-│   └── calculations.ts
-└── types/                    # TypeScript типи
-    └── demo.types.ts
+├── App.tsx                    # Головний компонент з імпортами
+├── components/
+│   ├── RegularComponent.tsx   # Без мемоізації
+│   ├── MemoizedComponent.tsx  # З useMemo
+│   ├── ChildButton.tsx        # Без memo
+│   ├── MemoizedChild.tsx      # З React.memo
+│   └── ListItem.tsx          # Мемоізований елемент списку
+└── utils/
+    └── calculations.ts        # Функції обчислень
 ```
 
 ## 🔧 Використані технології
